@@ -1,0 +1,41 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build-msvc-release",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": [
+                        "/d",
+                        "/c"
+                    ]
+                }
+            },
+            "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\" -arch=x64 && cl /nologo /O2 /std:c++17 /utf-8 /EHsc \"${workspaceFolder}\\slot10_50_100.cpp\" /Fe:\"${workspaceFolder}\\slot10_50_100.exe\"",
+            "group": "build",
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        },
+        {
+            "label": "build-msvc-debug",
+            "type": "shell",
+            "options": {
+                "shell": {
+                    "executable": "C:\\Windows\\System32\\cmd.exe",
+                    "args": [
+                        "/d",
+                        "/c"
+                    ]
+                }
+            },
+            "command": "call \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat\" -arch=x64 && cl /nologo /Zi /Od /std:c++17 /utf-8 /EHsc \"${workspaceFolder}\\slot10_50_100.cpp\" /Fe:\"${workspaceFolder}\\slot10_50_100_dbg.exe\"",
+            "group": "build",
+            "problemMatcher": [
+                "$msCompile"
+            ]
+        }
+    ]
+}
