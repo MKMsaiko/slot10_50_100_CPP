@@ -15,7 +15,7 @@
 - Visual Studio Code
     - 擴充：C/C++
 - Visual Studio 2022
-    - 請將 專案屬性 → C/C++ → Advanced → Source and Executable Character Set 設 Use UTF-8 或在 Command Line 加 /utf-8）避免輸出亂碼
+    - 請將 專案屬性 → C/C++ → Advanced → Source and Executable Character Set 設 Use UTF-8 或在 Command Line 加 /utf-8 避免輸出亂碼
 
 ## Build
 - 在「x64 Native Tools Command Prompt」或已設好 cl 的環境
