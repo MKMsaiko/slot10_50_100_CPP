@@ -75,7 +75,7 @@ using namespace std;
  * 參數（可調）
  **************/
 static long long numSpins = 1000000000LL;                    // 總轉數（預設 10 億）
-static double betPerLine = 40.0;                             // 每線押注
+static double betPerLine = 0.04;                             // 每線押注
 static int numWorkers = (int)thread::hardware_concurrency(); // 併發 worker(視硬體thread數而定)
 static double excelRTP = 0.965984;                           // Excel 試算 RTP，於輸出驗證；設負值則不比較
 
@@ -354,6 +354,14 @@ playFG(mt19937_64 &rng, Window5x3 *w)
     return {spins, base, retri, zeroBatches, totalBatches};
 }
 
+// ≥1000×獎項分佈細分
+static const double HIGH_BIN_EDGES[] = {
+    1000, 2000, 3000, 4000, 5000,
+    6000, 7000, 8000, 9000, 10000,
+    11000, 12000, 13000, 14000, 15000,
+    20000, 25000, 30000, 40000};
+static const int NUM_HIGH_BINS = sizeof(HIGH_BIN_EDGES) / sizeof(HIGH_BIN_EDGES[0]);
+
 /**************
  * 自訂統計（worker 本地先累計，最後匯總）
  **************/
@@ -372,7 +380,7 @@ struct Stats
 
     // 大獎分層（以單把贏分/押注倍率）
     long long bigWins = 0, megaWins = 0, superWins = 0, holyWins = 0, jumboWins = 0, jojoWins = 0;
-
+    long long hiWinBins[NUM_HIGH_BINS] = {};
     // FG 5 轉批次全空統計
     long long fgZeroBatches = 0, fgTotalBatches = 0;
 
@@ -491,6 +499,20 @@ static void worker(int /*id*/, long long spins, Stats *out, uint64_t seed)
         else if (ratio >= 20)
             local.bigWins++;
 
+        // x1000 以上再分層
+        if (ratio >= HIGH_BIN_EDGES[0])
+        {
+            // 從最大門檻往回找，找到第一個符合 ratio >= edge 的 bin
+            for (int bi = NUM_HIGH_BINS - 1; bi >= 0; --bi)
+            {
+                if (ratio >= HIGH_BIN_EDGES[bi])
+                {
+                    local.hiWinBins[bi]++;
+                    break;
+                }
+            }
+        }
+
         //  per-spin RTP 統計
         local.rtpSum += ratio;
         local.rtpSumSq += ratio * ratio;
@@ -578,6 +600,10 @@ int main()
         total.holyWins += s.holyWins;
         total.jumboWins += s.jumboWins;
         total.jojoWins += s.jojoWins;
+        for (int bi = 0; bi < NUM_HIGH_BINS; ++bi)
+        {
+            total.hiWinBins[bi] += s.hiWinBins[bi];
+        }
 
         total.fgZeroBatches += s.fgZeroBatches;
         total.fgTotalBatches += s.fgTotalBatches;
@@ -636,10 +662,22 @@ int main()
              << (double)total.totalFGSpins / (double)total.triggerCount << "\n";
         cout << setprecision(6);
     }
+    // FG 5 轉批次全空
+    if (total.fgTotalBatches > 0)
+    {
+        cout << "FG 5轉批次『完全無贏分』             : "
+             << total.fgZeroBatches << " / " << total.fgTotalBatches
+             << " (占比 " << (double)total.fgZeroBatches / (double)total.fgTotalBatches << ")\n";
+    }
+    else
+    {
+        cout << "FG 5轉批次『完全無贏分』             : 0 / 0 (占比 0)\n";
+    }
 
-    // 命中與大獎頻率
     cout << "主遊戲 dead spins（無線獎且未觸發FG）: " << total.deadSpins
          << " (占比 " << (double)total.deadSpins / (double)numSpins << ")\n";
+
+    cout << "\n獎項分佈\n";
     cout << "Big  Win  (≥20×bet)                   : " << total.bigWins
          << " " << everyStr(numSpins, total.bigWins) << "\n";
     cout << "Mega Win  (≥60×bet)                   : " << total.megaWins
@@ -653,16 +691,13 @@ int main()
     cout << "Jojo Win  (≥1000×bet)                 : " << total.jojoWins
          << " " << everyStr(numSpins, total.jojoWins) << "\n";
 
-    // FG 5 轉批次全空
-    if (total.fgTotalBatches > 0)
+    cout << "\n≥1000倍大獎細分\n";
+    for (int bi = 0; bi < NUM_HIGH_BINS; ++bi)
     {
-        cout << "FG 5轉批次『完全無贏分』             : "
-             << total.fgZeroBatches << " / " << total.fgTotalBatches
-             << " (占比 " << (double)total.fgZeroBatches / (double)total.fgTotalBatches << ")\n";
-    }
-    else
-    {
-        cout << "FG 5轉批次『完全無贏分』             : 0 / 0 (占比 0)\n";
+        long long cnt = total.hiWinBins[bi];
+        int edge = static_cast<int>(HIGH_BIN_EDGES[bi]);
+        cout << "≥" << setw(5) << edge << "×bet    : "
+             << cnt << ' ' << everyStr(numSpins, cnt) << '\n';
     }
 
     // 統計驗證（per-spin RTP 的均值/方差/95% CI）
