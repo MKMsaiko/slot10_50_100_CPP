@@ -29,6 +29,16 @@
 
 ## 模擬器輸出示意圖
 <p align="center">
-  <img src="image/10_50_100Stat.png"  width="720" alt="模擬輸出截圖">
-  <br><sub>RTP、獎項分佈、峰值摘要、與Excel試算結果驗證等</sub>
+  <img src="image/10_50_100Sim.png"  width="720" alt="模擬輸出截圖">
+  <br><sub>RTP、獎項分佈、峰值摘要</sub>
+</p>
+
+<p align="center">
+  <img src="image/10_50_100Win.png"  width="350" alt="模擬輸出截圖">
+  <br><sub>大獎詳細分層</sub>
+</p>
+
+<p align="center">
+  <img src="image/10_50_100Stat.png"  width="450" alt="模擬輸出截圖">
+  <br><sub>與Excel試算結果驗證</sub>
 </p>
