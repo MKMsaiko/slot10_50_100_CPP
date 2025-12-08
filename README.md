@@ -39,6 +39,6 @@
 </p>
 
 <p align="center">
-  <img src="image/10_50_100Stat.png"  width="450" alt="模擬輸出截圖">
+  <img src="image/10_50_100Stat2.png"  width="450" alt="模擬輸出截圖">
   <br><sub>與Excel試算結果驗證</sub>
 </p>
