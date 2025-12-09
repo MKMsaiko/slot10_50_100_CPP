@@ -1,8 +1,12 @@
 # slot10_50_100_C++
 
-- Slot simulator demo
+- Slot simulator demo - Line Game
 
 - 模擬遊戲數據，輸出各項統計資料
+
+- 主要特色
+  - 免費遊戲有3種倍率：10、50、100
+  - 高波動
 
 - 遊戲規則與程式流程請見程式檔頭註解
 
